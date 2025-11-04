@@ -44,7 +44,7 @@ Steps:
 1. The RealSense camera starts and captures frames. Press a key to select your image. 
 2. Select one or more points on the displayed image, the segmentation mask will be build to select the object in these datapoints.
 3. SAM predicts a segmentation mask. Press a key to continue.
-4. The mask color is used for fitting 3D ellipsoids. You can change K (nb of ellipsoids) and radius_percentile (percentile of datapoints enclosed).
+4. The mask color is used for fitting 3D ellipsoids. You can change K (nb of ellipsoids) and radius_percentile (percentile of datapoints enclosed). First, a GMM is performed, then the covariances matrices are scaled to enclosed the desired percentile of datapoints. 100% leads to include outliers, if doing so, you need to first adjust your point cloud.
 5. The 3D gaussians are pruned and merge to simplify the output. Change the parameters to change this behaviour.
 6. Finally Open3D launches an interactive 3D viewer showing:
    - The full point cloud
