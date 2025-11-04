@@ -62,6 +62,19 @@ def ellipsoid_from_gaussian(mu, cov, r=1.0):
 sam_checkpoint = "model/sam_vit_b_01ec64.pth"
 model_type = "vit_b"
 
+# ====== Ellipsoid Parameters ======
+K_ellipses = 4  # Number of ellipsoids to fit
+prune_weight=1e-3 # Weight threshold for pruning
+prune_points=10 # Minimum points per Gaussian
+merge_thresh=0.05 # Mahalanobis distance for merging
+radius_method='percentile' # Method for radius calculation
+radius_percentile=99.0 # Percentile value
+outlier_removal=True # Enable outlier removal
+outlier_thresh=1.5 # Threshold for outlier removal
+clamp_scale_min=0.5 # Minimum radius scale clamp for ellipsoids
+clamp_scale_max=30.0 # Maximum scale clamp for ellipsoids
+verbose=True
+
 # ====== Image Parameters ======
 font = cv2.FONT_HERSHEY_SIMPLEX
 org = (20, 100)
@@ -228,17 +241,17 @@ pcd_seg.colors = o3d.utility.Vector3dVector(colors_full)
 print("Fitting ellipsoids to segmented point cloud...")
 mus, covs_scaled, weights, radii = build_gaussians_from_points(
     points_segmented,
-    K=4,
-    prune_weight=1e-3,
-    prune_points=10,
-    merge_thresh=0.05,
-    radius_method='percentile', 
-    radius_percentile=100.0,
-    outlier_removal=True,
-    outlier_thresh=1.5,  
-    clamp_scale_min=0.5,
-    clamp_scale_max=30.0,
-    verbose=True
+    K=K_ellipses,
+    prune_weight=prune_weight,
+    prune_points=prune_points,
+    merge_thresh=merge_thresh,
+    radius_method=radius_method, 
+    radius_percentile=radius_percentile,
+    outlier_removal=outlier_removal,
+    outlier_thresh=outlier_thresh,  
+    clamp_scale_min=clamp_scale_min,
+    clamp_scale_max=clamp_scale_max,
+    verbose=verbose
 )
 print("Fitting complete.")
 
