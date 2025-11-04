@@ -27,12 +27,9 @@ def show_mask(mask, frame, random_color=False):
     mask_indices = mask.astype(bool)
     overlay[mask_indices] = color
     frame = cv2.addWeighted(overlay, 0.6, frame, 0.4, 0)
-    return frame
+    return frame, color
 
-import numpy as np
-import open3d as o3d
-
-def ellipsoid_from_gaussian(mu, cov, r=1.0, color=[0.7, 0.1, 0.1]):
+def ellipsoid_from_gaussian(mu, cov, r=1.0):
     """
     Create an Open3D TriangleMesh ellipsoid corresponding to a Gaussian.
     mu: (3,)
@@ -58,7 +55,6 @@ def ellipsoid_from_gaussian(mu, cov, r=1.0, color=[0.7, 0.1, 0.1]):
     sphere_vertices = (sphere_vertices @ R.T) + mu  # rotate + scale + translate
     sphere.vertices = o3d.utility.Vector3dVector(sphere_vertices)
 
-    sphere.paint_uniform_color(color)
     return sphere
 
 
@@ -125,6 +121,7 @@ print(f"\tConfiguration Successful for SN {device}")
 # ====== Create filters ======
 hole_filling = rs.hole_filling_filter()
 
+print("Press a key to keep the image for segmentation.")
 i = 0
 while True:
     # Get and align frames
@@ -146,8 +143,12 @@ while True:
     color_image = np.asanyarray(color_frame.get_data())
     depth_image_3d = np.dstack((depth_image,depth_image,depth_image))
     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-    break
-
+    
+    cv2.imshow("Image", color_image)
+    k = cv2.waitKey(1)
+    if k != -1:
+        break
+    
 # ====== Load Model ======
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -176,7 +177,7 @@ masks, scores, logits = predictor.predict(
 
 mask, score = masks[-1], scores[-1]
 print(f"Mask selected with score: {score}")
-frame = show_mask(mask, color_image, random_color=True)
+frame, color_bgr = show_mask(mask, color_image, random_color=True)
 cv2.imshow("Mask", frame)
 cv2.waitKey(0)
 
@@ -227,12 +228,12 @@ pcd_seg.colors = o3d.utility.Vector3dVector(colors_full)
 print("Fitting ellipsoids to segmented point cloud...")
 mus, covs_scaled, weights, radii = build_gaussians_from_points(
     points_segmented,
-    K=12,
+    K=4,
     prune_weight=1e-3,
     prune_points=10,
     merge_thresh=0.05,
-    radius_method='percentile',
-    radius_percentile=95.0,
+    radius_method='percentile', 
+    radius_percentile=98.0,
     outlier_removal=True,
     outlier_thresh=3.5,  
     clamp_scale_min=0.5,
@@ -244,7 +245,7 @@ print("Fitting complete.")
 # ====== Create ellipsoid meshes ======
 meshes = []
 for mu, cov in zip(mus, covs_scaled):
-    ellipsoid = ellipsoid_from_gaussian(mu, cov, r=1.5, color=np.array([0.1, 0.7, 0.1]))
+    ellipsoid = ellipsoid_from_gaussian(mu, cov, r=1.0)
     meshes.append(ellipsoid)
 
 # ====== Visualize ======
@@ -281,15 +282,13 @@ for i, (mu, cov) in enumerate(zip(mus, covs_scaled)):
         transform[:3, 3] = mu
         ellipsoid.transform(transform)
 
-        # Random color for each ellipsoid
-        color = np.array([0.1, 0.7, 0.1]) + np.random.rand(3) * 0.1
-
         # Semi-transparent material
         mat = o3d.visualization.rendering.MaterialRecord()
         mat.shader = "defaultLitTransparency"
-        mat.base_color = [color[0], color[1], color[2], 0.5]
-        mat.base_roughness = 0.4
-        mat.base_reflectance = 0.3
+        color_rgb = color_bgr[::-1] / 255.0
+        mat.base_color = [color_rgb[0], color_rgb[1], color_rgb[2], 0.5]
+        mat.base_roughness = 0.8
+        mat.base_reflectance = 0.1
 
         vis.add_geometry(f"ellipsoid_{i}", ellipsoid, mat)
     except Exception as e:
