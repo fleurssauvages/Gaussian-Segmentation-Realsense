@@ -28,7 +28,7 @@ pip install numpy torch open3d pyrealsense2 opencv-python
 ```
 
 You also need to install and download the **Segment Anything (SAM)**, as well as the model weights.
-See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation.
+See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation. Note: SAM 2 has also been released in 2024 and might perform better and faster, particularly for video stream.
 
 ---
 
