@@ -1,4 +1,4 @@
-# 🧠 SAM Segmentation and 3D Ellipsoid Visualization
+# 🧠 SAM Segmentation and 3D Ellipsoid Visualization with a RealSense Camera
 
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Dependencies](https://img.shields.io/badge/dependencies-open3d%2C%20segment--anything%2C%20pyrealsense2-green)](https://pypi.org/)
