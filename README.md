@@ -47,9 +47,8 @@ Steps:
 4. The mask color is used for fitting 3D ellipsoids. You can change K (nb of ellipsoids) and radius_percentile (percentile of datapoints enclosed). First, a GMM is performed, then the covariances matrices are scaled to enclosed the desired percentile of datapoints. 100% leads to include outliers, if doing so, you need to first adjust your point cloud.
 5. The 3D gaussians are pruned and merge to simplify the output. Change the parameters to change this behaviour.
 6. Finally Open3D launches an interactive 3D viewer showing:
-   - The full point cloud
-   - The segmented region
-   - Ellipsoids enclosing ~98% of the data points (tunable parameter)
+   - The full point cloud with color from RGB data.
+   - The fitted Ellipsoids
 
 ---
 
@@ -85,7 +84,7 @@ Steps:
 
 ---
 
-### 🔹 3D Ellipsoids (98% of points)  
+### 🔹 3D Ellipsoids (98% of segmented points) and point cloud projected in the camera view
 <img src="images/seg_98.png" width="800" alt="Ellipsoid Visualization">
 
 </div>
