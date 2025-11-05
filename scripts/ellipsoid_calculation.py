@@ -14,8 +14,7 @@ Produces: saved npz file with arrays:
 import numpy as np
 from sklearn.mixture import GaussianMixture
 from scipy.stats import chi2
-from scipy.linalg import sqrtm, inv
-from scipy.spatial.distance import euclidean
+from scipy.linalg import inv
 
 # ---------- Utilities ----------
 def regularize_cov(S, eps=1e-6):
@@ -177,7 +176,7 @@ def build_gaussians_from_points(X, K=64, prune_weight=1e-3, prune_points=10,
                                 radius_p=0.99, radius_percentile=99.0, verbose=True,
                                 outlier_removal=True, outlier_thresh=3.5,
                                 clamp_scale_min=0.5, clamp_scale_max=100.0,
-                                default_scale_when_empty=1.0):
+                                default_scale_when_empty=0.0):
     """
     Robust pipeline to build Gaussians from points.
 
@@ -313,7 +312,6 @@ def build_gaussians_from_points(X, K=64, prune_weight=1e-3, prune_points=10,
             s = float(np.percentile(d2, radius_percentile))
 
         # ensure no tiny or huge scaling
-        # but note: original code multiplied covariance by s (Mahalanobis^2). If s<1 this shrinks.
         s_clamped = float(np.clip(s, clamp_scale_min, clamp_scale_max))
         scales[k] = s_clamped
         covs_scaled[k] = S * s_clamped
