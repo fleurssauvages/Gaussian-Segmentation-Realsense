@@ -15,8 +15,9 @@ class UIControl:
 
     def mouse_callback(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN and self.mode == 'init':
-            self.input_point.append((x, y))
-            print(f"Point selected: ({x}, {y})")
+            if (x, y) not in self.input_point:
+                self.input_point.append((x, y))
+                print(f"Point selected: ({x}, {y})")
 
 def show_mask(mask, frame, random_color=False):
     if random_color:
@@ -74,6 +75,8 @@ outlier_thresh=1.5 # Threshold for outlier removal
 clamp_scale_min=0.5 # Minimum radius scale clamp for ellipsoids
 clamp_scale_max=30.0 # Maximum scale clamp for ellipsoids
 verbose=True
+
+max_distance = 1.0 # meters
 
 # ====== Image Parameters ======
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -206,7 +209,7 @@ X_full = (xx - cx) * depths_full / fx
 Y_full = (yy - cy) * depths_full / fy
 Z_full = depths_full
 
-valid = Z_full > 0
+valid = (Z_full > 0) & (Z_full < max_distance)
 full_pts3d = np.vstack((X_full[valid], Y_full[valid], Z_full[valid])).T
 
 # Get colors from the RGB image
