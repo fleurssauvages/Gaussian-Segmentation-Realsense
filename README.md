@@ -6,6 +6,7 @@
 
 This project demonstrates **image segmentation using Meta’s Segment Anything Model (SAM)** combined with **3D ellipsoid fitting and visualization in Open3D**.  
 It performs real-time RGB-D capture using an Intel RealSense camera, interactive segmentation of an object, 3D reconstruction of the segmented region, and Gaussian ellipsoid fitting to represent its spatial distribution.
+The SAM2 camera extension is drawn from segment-anything-2 real-time: https://github.com/Gy920/segment-anything-2-real-time
 
 ---
 
@@ -30,6 +31,7 @@ pip install numpy torch open3d pyrealsense2 opencv-python
 You also need to install and download the **Segment Anything (SAM)**, as well as the model weights.
 See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation.
 For SAM2 installation, check https://github.com/facebookresearch/sam2
+If using SAM2 webcam tracking, install: https://github.com/Gy920/segment-anything-2-real-time
 
 ---
 
