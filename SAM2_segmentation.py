@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from segment_anything import sam_model_registry, SamPredictor
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 import numpy as np
 import cv2
 import torch
@@ -57,11 +58,6 @@ def ellipsoid_from_gaussian(mu, cov, r=1.0):
     sphere.vertices = o3d.utility.Vector3dVector(sphere_vertices)
 
     return sphere
-
-
-# ====== Model Parameters ======
-sam_checkpoint = "model/sam_vit_b_01ec64.pth"
-model_type = "vit_b"
 
 # ====== Ellipsoid Parameters ======
 K_ellipses = 4  # Number of ellipsoids to fit
@@ -166,11 +162,14 @@ while True:
         break
     
 # ====== Load Model ======
-sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
+sam2_checkpoint = "model/sam2_hiera_tiny.pt"  # path to SAM2 checkpoint
+model_cfg = "sam2_hiera_t"  # pick model type (e.g., t, s, b, b+, l, l+)
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
-sam.to(device)
-predictor = SamPredictor(sam)
-print("Model loaded successfully.")
+sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
+predictor = SAM2ImagePredictor(sam2_model)
+
+print("SAM2 model loaded successfully.")
 
 # ====== Start UI ======
 ui_control = UIControl()
@@ -183,16 +182,24 @@ cv2.waitKey(0)
 input_point = np.array(ui_control.input_point)
 input_label = np.array([1] * len(ui_control.input_point))
 
-# Initialize masks
+# ====== Initialize and predict masks ======
 predictor.set_image(color_image)
+
+# Run point-based prediction
 masks, scores, logits = predictor.predict(
     point_coords=input_point,
     point_labels=input_label,
     multimask_output=False,
 )
 
-mask, score = masks[-1], scores[-1]
-print(f"Mask selected with score: {score}")
+# Select the best mask (highest IoU score)
+best_idx = scores.argmax()
+mask = masks[best_idx]
+score = scores[best_idx]
+
+print(f"Selected mask with IoU score: {score:.4f}")
+
+# Visualize
 frame, color_bgr = show_mask(mask, color_image, random_color=True)
 cv2.imshow("Mask", frame)
 cv2.waitKey(0)
