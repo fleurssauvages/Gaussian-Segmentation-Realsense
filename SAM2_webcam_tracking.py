@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sam2_webcam import build_sam2_camera_predictor
+from sam2.build_sam import build_sam2_camera_predictor
 import numpy as np
 import cv2
 import torch

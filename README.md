@@ -29,9 +29,9 @@ pip install numpy torch open3d pyrealsense2 opencv-python
 ```
 
 You also need to install and download the **Segment Anything (SAM)**, as well as the model weights.
-See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation.
-For SAM2 installation, check https://github.com/facebookresearch/sam2
-If using SAM2 webcam tracking, install: https://github.com/Gy920/segment-anything-2-real-time
+See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation. SAM can be installed via pip, unlike SAM2.
+For SAM2 installation, check https://github.com/facebookresearch/sam2 A cloned repo is provided here, cloned the 10/11/2025.
+If using SAM2 webcam tracking, check: https://github.com/Gy920/segment-anything-2-real-time
 
 ---
 
@@ -57,9 +57,15 @@ Steps:
 You can also run:
 
 ```bash
-python SAM2_automatic.py
+python SAM2_segmentation.py
 ```
-to automatically segment all the objects within the maximum distance parameter, without any user selection.
+for SAM2 version.
+
+Finally we provide a segmentation for live tracking using a video feed, drawn from https://github.com/Gy920/segment-anything-2-real-time
+
+```bash
+python SAM2_webcam_tracking.py
+```
 
 ---
 
@@ -103,6 +109,11 @@ to automatically segment all the objects within the maximum distance parameter, 
 
 ### 🔹 3D Ellipsoids (100% of segmented points)
 <img src="images/seg_100.png" width="800" alt="Ellipsoid Visualization 100">
+
+---
+
+### 🔹 Webcam Tracking
+<img src="images/tracking.gif" width="800" alt="Tracking">
 
 </div>
 
