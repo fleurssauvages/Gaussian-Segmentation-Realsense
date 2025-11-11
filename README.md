@@ -52,6 +52,13 @@ Steps:
    - The full point cloud with color from RGB data.
    - The fitted Ellipsoids
 
+You can also run:
+
+```bash
+python SAM2_automatic.py
+```
+to automatically segment all the objects within the maximum distance parameter, without any user selection.
+
 ---
 
 ## 📂 Project Structure
