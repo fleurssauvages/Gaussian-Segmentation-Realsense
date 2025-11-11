@@ -28,13 +28,14 @@ pip install numpy torch open3d pyrealsense2 opencv-python
 ```
 
 You also need to install and download the **Segment Anything (SAM)**, as well as the model weights.
-See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation. Note: SAM 2 has also been released in 2024 and might perform better and faster, particularly for video stream.
+See https://github.com/facebookresearch/segment-anything for more information. Put the model in a /model folder. Change the weights path name according to your installation.
+For SAM2 installation, check https://github.com/facebookresearch/sam2
 
 ---
 
 ## 🚀 Run the Script
 
-Run the segmentation and visualization:
+Run the segmentation and visualization (SAM or SAM2 depending on your install):
 
 ```bash
 python SAM_segmentation.py
