@@ -6,7 +6,7 @@
 
 This project demonstrates **image segmentation using Meta’s Segment Anything Model (SAM)** combined with **3D ellipsoid fitting and visualization in Open3D**.  
 It performs real-time RGB-D capture using an Intel RealSense camera, interactive segmentation of an object, 3D reconstruction of the segmented region, and Gaussian ellipsoid fitting to represent its spatial distribution.
-The SAM2 camera extension is drawn from segment-anything-2 real-time: https://github.com/Gy920/segment-anything-2-real-time
+The SAM2 camera extension is drawn from segment-anything-2 real-time: https://github.com/Gy920/segment-anything-2-real-time, and modifies build_sam.py to build model and the predictor, while adding sam2_camera_predictor.py for the class of the predictor.
 
 ---
 

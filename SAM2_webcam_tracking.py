@@ -5,7 +5,6 @@ import cv2
 import torch
 import pyrealsense2 as rs
 import open3d as o3d
-from collections import OrderedDict
 
 # ====== Helpers ======
 class UIControl:
