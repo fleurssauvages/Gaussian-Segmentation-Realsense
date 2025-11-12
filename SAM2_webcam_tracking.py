@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from sam2.build_sam import build_sam2_camera_predictor
+from scripts.ellipsoid_calculation import build_gaussians_from_points
 import numpy as np
 import cv2
 import torch
 import pyrealsense2 as rs
 import open3d as o3d
+from collections import defaultdict
 
 # ====== Helpers ======
 class UIControl:
@@ -273,8 +275,46 @@ while True:
         # Visualize
         color_bgr = object_colors[j]
         color_image, color_bgr = show_mask(mask, color_image, color=color_bgr)
+
+    gaussians = defaultdict(list)
+    # Fit Gaussians
+    for j, mask in enumerate(out_mask_logits):
+        mask = (mask > 0.0).permute(1, 2, 0).cpu().numpy().astype(np.uint8) * 255
+        mask = mask[:, :, 0]
+        depth_masked = np.where(mask, depth_image, 0).astype(np.float32)
+        points_3d = []
+        # Vectorized conversion of valid depth pixels to 3D points
+        depth_m = depth_masked.astype(np.float32) * depth_scale  # meters
+        valid = (depth_m > 0) & (depth_m <= max_distance)
+        if np.any(valid):
+            vs, us = np.nonzero(valid)        # row (v) and col (u) indices
+            zs = depth_m[vs, us]
+            xs = (us - intr.ppx) * zs / intr.fx
+            ys = (vs - intr.ppy) * zs / intr.fy
+            points_3d = np.stack((xs, ys, zs), axis=-1)
+        else:
+            points_3d = np.empty((0, 3), dtype=np.float32)
+        points_3d = np.array(points_3d)
+        if points_3d.shape[0] < 10:
+            continue
+        mus, covs_scaled, weights, radii = build_gaussians_from_points(
+            points_3d,
+            K=K_ellipses,
+            prune_weight=prune_weight,
+            prune_points=prune_points,
+            merge_thresh=merge_thresh,
+            radius_method=radius_method,
+            radius_percentile=radius_percentile,
+            outlier_removal=outlier_removal,
+            outlier_thresh=outlier_thresh,
+            clamp_scale_min=clamp_scale_min,
+            clamp_scale_max=clamp_scale_max,
+            verbose=verbose
+        )
+        gaussians[j] = list(zip(mus, covs_scaled))
     
     print(f"Generated {len(out_mask_logits)} masks")
+    print(f"Fitted Gaussians per object: " + ", ".join([f"{len(gaussians[j])}" for j in range(len(out_mask_logits))]))
 
     cv2.imshow("Segmented Image", color_image)
 
