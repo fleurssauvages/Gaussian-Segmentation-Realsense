@@ -140,13 +140,13 @@ for i in range(len(realsense_ctx.devices)):
     detected_camera = realsense_ctx.devices[i].get_info(rs.camera_info.serial_number)
     print(f"{detected_camera}")
     connected_devices.append(detected_camera)
-device = connected_devices[0] # In this example we are only using one camera
+camera_device = connected_devices[0] # In this example we are only using one camera
 pipeline = rs.pipeline()
 config = rs.config()
 background_removed_color = 153 # Grey
 
 # ====== Enable Streams ======
-config.enable_device(device)
+config.enable_device(camera_device)
 stream_res_x = 640
 stream_res_y = 480
 stream_fps = 15
@@ -177,10 +177,10 @@ axis_3D = np.float32([[0,0,0],
 # ====== Get depth Scale ======
 depth_sensor = profile.get_device().first_depth_sensor()
 depth_scale = depth_sensor.get_depth_scale()
-print(f"\tDepth Scale for Camera SN {device} is: {depth_scale}")# ====== Set clipping distance ======
+print(f"\tDepth Scale for Camera SN {camera_device} is: {depth_scale}")# ====== Set clipping distance ======
 clipping_distance_in_meters = 2
 clipping_distance = clipping_distance_in_meters / depth_scale
-print(f"\tConfiguration Successful for SN {device}")
+print(f"\tConfiguration Successful for SN {camera_device}")
 
 # ====== Create filters ======
 hole_filling = rs.hole_filling_filter()
@@ -266,7 +266,8 @@ while True:
     else:
         frame_idx += 1
     
-    out_obj_ids, out_mask_logits = predictor.track(color_image)
+    with torch.autocast(device_type=device, dtype=torch.float16):
+        out_obj_ids, out_mask_logits = predictor.track(color_image)
     
     # Generate masks
     for j, mask in enumerate(out_mask_logits):
